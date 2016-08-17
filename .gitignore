@@ -85,5 +85,8 @@ ENV/
 # Spyder project settings
 .spyderproject
 
+# Pycharm settings
+.idea
+
 # Rope project settings
 .ropeproject
