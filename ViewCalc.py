@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 import re
 from StringIO import StringIO
 
-
-def GetChunkFromTextFile(FileName, StartStr, StopStr, skip_header=0, skip_footer=0, LastHit=False, DataType='array'):
+def GetChunkFromTextFile(FileName, StartStr, StopStr, skip_header=0, skip_footer=0, LastHit=True, DataType='array'):
     # DataType means we can extract the chunk and then turn it into:
     # 1) Numpy table 'numpy'
     # 2) return the raw text 'raw'
@@ -23,7 +22,10 @@ def GetChunkFromTextFile(FileName, StartStr, StopStr, skip_header=0, skip_footer
     reout = re.compile('%s(.*?)%s' % (StartStr, StopStr), re.S)
     try:
         # Extract just the data we want.
-        SectionStr = reout.search(data).group(1)
+        if LastHit == False:
+            SectionStr = reout.search(data).group(1)
+        else:
+            SectionStr = reout.findall(data)[-1]
     except:
         # It is possible that the user asked for something that isn't in the file.  If so, just bail.
         return None
