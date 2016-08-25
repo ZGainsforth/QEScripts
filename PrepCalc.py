@@ -127,7 +127,7 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
 
     for n in range(len(ReplaceVals1)):
         Vals = ReplaceVals1[n]
-        if type(Vals) == tuple:
+        if type(Vals) != tuple:
             Vals = (Vals,)
 
         # Make the unique name which is used for the .in, .out and for the data directory for this calculation.
@@ -211,10 +211,17 @@ if __name__ == '__main__':
     # ConvergeParameter(InFile1='Co.FCC.scf.in', ReplaceStr='s/celldm(1) = 6.48/celldm(1) = %0.2f/', ReplaceLabel='celldm(1)', ReplaceFormatStr='%0.2f', ConvergenceName='ConvergeLatticeParam',
     #                  ReplaceVals1=list(frange(6.44, 6.52, 0.01)))
 
-    ReplaceVals = [(x, x, x) for x in range(2,10,1)]
-    ConvergeParameter(InFile1='scf.Mg.template', InFile2='scf.Fe.template',
-        ReplaceStr='s/4 4 4 0 0 0/%d %d %d 0 0 0/',
-        ReplaceLabel='kgrid',
-        ReplaceFormatStr='%d,%d,%d',
-        ReplaceVals1=ReplaceVals,
-        ReplaceVals2=ReplaceVals)
+    # # Example with changing k grid.
+    # ReplaceVals = [(x, x, x) for x in range(2,10,1)]
+    # ConvergeParameter(InFile1='scf.Mg.template', InFile2='scf.Fe.template',
+    #     ReplaceStr='s/4 4 4 0 0 0/%d %d %d 0 0 0/',
+    #     ReplaceLabel='kgrid',
+    #     ReplaceFormatStr='%d,%d,%d',
+    #     ReplaceVals1=ReplaceVals,
+    #     ReplaceVals2=ReplaceVals)
+
+    # Finding Hubbard U in DFT+U.
+    ConvergeParameter(InFile1='Magnetite.relax', ReplaceStr='s/Hubbard_alpha(1) = 1D-40/Hubbard_alpha(1) = %0.3f/',
+                      ReplaceLabel='HubbardAlpha',
+                      ReplaceFormatStr='%0.3f',
+                      ReplaceVals1=list(frange(-0.01, 0.011, 0.001)))
