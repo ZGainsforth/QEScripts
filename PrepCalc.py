@@ -106,7 +106,7 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
 
     # This is the str to run pw.x.
     pwstr = 'echo %s\npw.x %s < %s.in > %s.out\n'
-    pwstrMPI = 'echo %s\n' + MPIOpts + ' pw.x %s < %s.in > %s.out &\nsleep 2\n'
+    pwstrMPI = 'printf "%s, " >> mpijoblist.txt\nsbatch myjobn.sh %s >> mpijoblist.txt\n\n'
 
     # This is the string which will contain all the pw.x commands to run.
     RunStr = list()
@@ -142,7 +142,7 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
         # sed on first file.
         os.system(sedstr % (Vals + (BaseName1, InFile1, BaseName1)))
         RunStr.append(pwstr % (BaseName1, ParallelOpts, BaseName1, BaseName1))
-        RunStrMPI.append(pwstrMPI % (BaseName1, ParallelOpts, BaseName1, BaseName1))
+        RunStrMPI.append(pwstrMPI % (BaseName1, BaseName1))
 
         if InFile2 is not None:
             Vals = ReplaceVals2[n]
@@ -153,7 +153,7 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
             XVaryStr2.append(ReplaceFormatStr % Vals)
             os.system(sedstr % (Vals + (BaseName2, InFile2, BaseName2)))
             RunStr.append(pwstr % (BaseName2, ParallelOpts, BaseName2, BaseName2))
-            RunStrMPI.append(pwstrMPI % (BaseName2, ParallelOpts, BaseName2, BaseName2))
+            RunStrMPI.append(pwstrMPI % (BaseName2, BaseName2))
 
     # Make a bash script that the user can use to run this.
     with open('runpw', 'w') as f:
@@ -164,6 +164,11 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
         f.write('#!/bin/bash\n')
         f.write(''.join(RunStrMPI))
     os.system('chmod +x runpwmpi')
+
+    # Tweak the myjobn.sh to have this job name
+    os.system("sed -e 's/jobname/%s/' myjobn.sh > myjobntemp.sh" % ConvergenceName)
+    os.system('rm myjobn.sh')
+    os.system('mv myjobntemp.sh myjobn.sh')
 
     # Write files which allow easier plotting and viewing later.
     try:
@@ -220,8 +225,13 @@ if __name__ == '__main__':
     #     ReplaceVals1=ReplaceVals,
     #     ReplaceVals2=ReplaceVals)
 
-    # Finding Hubbard U in DFT+U.
-    ConvergeParameter(InFile1='Magnetite.relax', ReplaceStr='s/Hubbard_alpha(1) = 1D-40/Hubbard_alpha(1) = %0.3f/',
-                      ReplaceLabel='HubbardAlpha',
-                      ReplaceFormatStr='%0.3f',
-                      ReplaceVals1=list(frange(-0.01, 0.011, 0.001)))
+    # # Finding Hubbard U in DFT+U.
+    # ConvergeParameter(InFile1='Magnetite.relax', ReplaceStr='s/Hubbard_alpha(1) = 1D-40/Hubbard_alpha(1) = %0.3f/',
+    #                   ReplaceLabel='HubbardAlpha',
+    #                   ReplaceFormatStr='%0.3f',
+    #                   ReplaceVals1=list(frange(-0.01, 0.011, 0.001)))
+
+    ConvergeParameter(InFile1='Forsterite.lattice', ReplaceStr='s/celldm(1) = 19.237/celldm(1) = %0.3f/',
+                  ReplaceLabel='Lattice',
+                  ReplaceFormatStr='%0.3f',
+                  ReplaceVals1=list(frange(18.0, 22.0, 0.2)))
