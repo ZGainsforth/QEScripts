@@ -85,7 +85,7 @@ def Convergekgrid(InFile1=None, kGrid1=[1, 1, 1], InFile2=None, kGrid2=None, kGr
             f.write(InFile2noext)
 
     # Print results for the user.
-    print "kpoint convergence set written.  Run 'runpw' to run all simulations.  Run python ViewCalc.py to view results after.\n"
+    print("kpoint convergence set written.  Run 'runpw' to run all simulations.  Run python ViewCalc.py to view results after.\n")
 
 
 def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, ReplaceLabel='', ConvergenceName='', ReplaceVals1=None, InFile2=None, ReplaceVals2=None, ParallelOpts='-nk 2 -nb 2', MPIOpts='mpirun -np 8'):
@@ -106,7 +106,7 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
 
     # This is the str to run pw.x.
     pwstr = 'echo %s\npw.x %s < %s.in > %s.out\n'
-    pwstrMPI = 'printf "%s, " >> mpijoblist.txt\nsbatch myjobn.sh %s >> mpijoblist.txt\n\n'
+    pwstrMPI = 'echo %s\nprintf "%s, " >> mpijoblist.txt\nsbatch myjobn.sh %s >> mpijoblist.txt\nsleep 30\n\n'
 
     # This is the string which will contain all the pw.x commands to run.
     RunStr = list()
@@ -142,7 +142,7 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
         # sed on first file.
         os.system(sedstr % (Vals + (BaseName1, InFile1, BaseName1)))
         RunStr.append(pwstr % (BaseName1, ParallelOpts, BaseName1, BaseName1))
-        RunStrMPI.append(pwstrMPI % (BaseName1, BaseName1))
+        RunStrMPI.append(pwstrMPI % (BaseName1, BaseName1, BaseName1))
 
         if InFile2 is not None:
             Vals = ReplaceVals2[n]
@@ -153,7 +153,7 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
             XVaryStr2.append(ReplaceFormatStr % Vals)
             os.system(sedstr % (Vals + (BaseName2, InFile2, BaseName2)))
             RunStr.append(pwstr % (BaseName2, ParallelOpts, BaseName2, BaseName2))
-            RunStrMPI.append(pwstrMPI % (BaseName2, BaseName2))
+            RunStrMPI.append(pwstrMPI % (BaseName2, BaseName2, BaseName2))
 
     # Make a bash script that the user can use to run this.
     with open('runpw', 'w') as f:
@@ -196,7 +196,7 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
             f.write(InFile2noext)
 
     # Print results for the user.
-    print "Convergence set written.  Run 'runpw' to run all simulations.  Run python ViewCalc.py to view results after.\n"
+    print("Convergence set written.  Run 'runpw' to run all simulations.  Run python ViewCalc.py to view results after.\n")
 
 
 def frange(start, stop, step):
@@ -207,7 +207,7 @@ def frange(start, stop, step):
 
 if __name__ == '__main__':
     # Example to converge a kpoint grid from 1,1,1, 2,2,2, 3,3,3, 4,4,4.
-    # Convergekgrid('C.scf.1.in', kGridMultipliers=range(1,5))
+    #Convergekgrid('NaCl.in', kGridMultipliers=range(1,5))
 
     # Example to differentially converge a kpoint grid starting from 2,2,2 to 4,4,4, 6,6,6 and 8,8,8.
     # Convergekgrid(InFile1='Co.HCP.scf.in', kGrid1=[2, 2, 1], InFile2='Co.FCC.scf.in', kGrid2=[2, 2, 2], kGridMultipliers=range(1, 10))
@@ -218,12 +218,13 @@ if __name__ == '__main__':
 
     # # Example with changing k grid.
     # ReplaceVals = [(x, x, x) for x in range(2,10,1)]
-    # ConvergeParameter(InFile1='scf.Mg.template', InFile2='scf.Fe.template',
-    #     ReplaceStr='s/4 4 4 0 0 0/%d %d %d 0 0 0/',
+    # ConvergeParameter(InFile1='Periclase.scf', #InFile2='scf.Fe.template',
+    #     ReplaceStr='s/3 3 3   0 0 0/%d %d %d 0 0 0/',
     #     ReplaceLabel='kgrid',
     #     ReplaceFormatStr='%d,%d,%d',
     #     ReplaceVals1=ReplaceVals,
-    #     ReplaceVals2=ReplaceVals)
+    #     #ReplaceVals2=ReplaceVals,
+    #     )
 
     # # Finding Hubbard U in DFT+U.
     # ConvergeParameter(InFile1='Magnetite.relax', ReplaceStr='s/Hubbard_alpha(1) = 1D-40/Hubbard_alpha(1) = %0.3f/',
@@ -231,7 +232,15 @@ if __name__ == '__main__':
     #                   ReplaceFormatStr='%0.3f',
     #                   ReplaceVals1=list(frange(-0.01, 0.011, 0.001)))
 
-    ConvergeParameter(InFile1='Forsterite.lattice', ReplaceStr='s/celldm(1) = 19.237/celldm(1) = %0.3f/',
-                  ReplaceLabel='Lattice',
+    # # ecutwfc
+    # ConvergeParameter(InFile1='Periclase.scf', ReplaceStr='s/ecutwfc = 30/ecutwfc = %0.3f/',
+    #               ReplaceLabel='ecutwfc',
+    #               ReplaceFormatStr='%0.3f',
+    #               ReplaceVals1=list(frange(25.0, 60.0, 5)))
+
+    # # ecutrho
+    ConvergeParameter(InFile1='Periclase.scf', ReplaceStr='s/ecutrho = 100/ecutrho = %0.3f/',
+                  ReplaceLabel='ecutrho',
                   ReplaceFormatStr='%0.3f',
-                  ReplaceVals1=list(frange(18.0, 22.0, 0.2)))
+                  ReplaceVals1=list(frange(100, 400, 50)))
+
