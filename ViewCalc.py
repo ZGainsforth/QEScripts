@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import re
-from StringIO import StringIO
+from io import StringIO
 
 def GetChunkFromTextFile(FileName, StartStr, StopStr, skip_header=0, skip_footer=0, LastHit=True, DataType='array'):
     # DataType means we can extract the chunk and then turn it into:
@@ -15,7 +15,7 @@ def GetChunkFromTextFile(FileName, StartStr, StopStr, skip_header=0, skip_footer
         with open(FileName, 'r') as myfile:
             data = myfile.read()
     except:
-        print 'Failed to open ' + FileName + '.  Skipping.'
+        print('Failed to open ' + FileName + '.  Skipping.')
         return
 
     # This regex looks for the data between the start and top strings.
