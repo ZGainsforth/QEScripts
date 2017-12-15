@@ -58,6 +58,8 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
 
         if InFile2 is not None:
             Vals = ReplaceVals2[n]
+            if type(Vals) != tuple:
+                Vals = (Vals,)
             BaseName2 = '%s-' + ConvergenceName + '-' + ReplaceFormatStr
             BaseName2Vals = (InFile2noext,) + Vals
             BaseName2 = BaseName2 % BaseName2Vals
@@ -137,15 +139,18 @@ if __name__ == '__main__':
     #                   ReplaceFormatStr='%0.3f',
     #                   ReplaceVals1=list(frange(-0.01, 0.011, 0.001)))
 
-    # # ecutwfc
-    # ConvergeParameter(InFile1='Periclase.scf', ReplaceStr='s/ecutwfc = 30/ecutwfc = %0.3f/',
-    #               ReplaceLabel='ecutwfc',
+    # ecutwfc
+    ReplaceVals = list(frange(50.0, 80.0, 5))
+    ConvergeParameter(  InFile1='Tr4CFe.scf',
+                        InFile2='Tr4CNi.scf',
+                        ReplaceStr='s/ecutwfc=64/ecutwfc=%0.3f/',
+                        ReplaceLabel='ecutwfc',
+                        ReplaceFormatStr='%0.3f',
+                        ReplaceVals1=ReplaceVals,
+                        ReplaceVals2=ReplaceVals)
+
+    # # # ecutrho
+    # ConvergeParameter(InFile1='Tr4C.scf', ReplaceStr='s/ecutrho = 800/ecutrho = %0.3f/',
+    #               ReplaceLabel='ecutrho',
     #               ReplaceFormatStr='%0.3f',
-    #               ReplaceVals1=list(frange(25.0, 60.0, 5)))
-
-    # # ecutrho
-    ConvergeParameter(InFile1='Periclase.scf', ReplaceStr='s/ecutrho = 100/ecutrho = %0.3f/',
-                  ReplaceLabel='ecutrho',
-                  ReplaceFormatStr='%0.3f',
-                  ReplaceVals1=list(frange(100, 400, 50)))
-
+    #               ReplaceVals1=list(frange(500, 1000, 50)))
