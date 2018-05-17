@@ -1,6 +1,6 @@
 import os
 
-def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, ReplaceLabel='', ConvergenceName='', ReplaceVals1=None, InFile2=None, ReplaceVals2=None, ParallelOpts='-nk 2 -nb 2', MPIOpts='mpirun -np 8'):
+def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, ReplaceLabel='', ConvergenceName='', ReplaceVals1=None, InFile2=None, ReplaceVals2=None, ParallelOpts='', MPIOpts='mpirun -np 8'):
     """ InFile1 and 2 should have a format like 'spinel.1.in.  1 and 2 indicate the we are looking for differential convergence.
         if InFile2 is empty, then we only converge on InFile1.
         ReplaceStr is the string that sed will use to replace values.
@@ -19,7 +19,7 @@ def ConvergeParameter(InFile1=None, ReplaceStr='', ReplaceFormatStr=None, Replac
     # This is the str to run pw.x.
     pwstr = 'echo %s\npw.x %s < %s.in > %s.out\n'
     pwstrMPI = 'echo %s\nprintf "%s, " >> mpijoblist.txt\nsbatch myjobn.sh %s >> mpijoblist.txt\nsleep 30\n\n'
-
+    
     # This is the string which will contain all the pw.x commands to run.
     RunStr = list()
     RunStrMPI = list() # And for the cluster too.
@@ -121,21 +121,15 @@ if __name__ == '__main__':
     # ConvergeParameter(InFile1='Co.FCC.scf.in', ReplaceStr='s/celldm(1) = 6.48/celldm(1) = %0.2f/', ReplaceLabel='celldm(1)', ReplaceFormatStr='%0.2f', ConvergenceName='ConvergeLatticeParam',
     #                  ReplaceVals1=list(frange(6.44, 6.52, 0.01)))
 
-    # # Example with changing k grid.
-    # ReplaceVals = [(x, x, x) for x in range(2,10,1)]
-    # ConvergeParameter(InFile1='Periclase.scf', #InFile2='scf.Fe.template',
-    #     ReplaceStr='s/3 3 3   0 0 0/%d %d %d 0 0 0/',
-    #     ReplaceLabel='kgrid',
-    #     ReplaceFormatStr='%d,%d,%d',
-    #     ReplaceVals1=ReplaceVals,
-    #     #ReplaceVals2=ReplaceVals,
-    #     )
-
-    # # Finding Hubbard U in DFT+U.
-    # ConvergeParameter(InFile1='Magnetite.relax', ReplaceStr='s/Hubbard_alpha(1) = 1D-40/Hubbard_alpha(1) = %0.3f/',
-    #                   ReplaceLabel='HubbardAlpha',
-    #                   ReplaceFormatStr='%0.3f',
-    #                   ReplaceVals1=list(frange(-0.01, 0.011, 0.001)))
+    ## Example with changing k grid.
+    #ReplaceVals = [(x, x, x) for x in range(1,10,1)]
+    #ConvergeParameter(InFile1='NiO.scf', #InFile2='scf.Fe.template',
+    #    ReplaceStr='s/5 5 5 0 0 /%d %d %d 0 0 0/',
+    #    ReplaceLabel='kgrid',
+    #    ReplaceFormatStr='%d,%d,%d',
+    #    ReplaceVals1=ReplaceVals,
+    #    #ReplaceVals2=ReplaceVals,
+    #    )
 
     # # ecutwfc
     # ConvergeParameter(InFile1='Periclase.scf', ReplaceStr='s/ecutwfc = 30/ecutwfc = %0.3f/',
@@ -144,8 +138,23 @@ if __name__ == '__main__':
     #               ReplaceVals1=list(frange(25.0, 60.0, 5)))
 
     # # ecutrho
-    ConvergeParameter(InFile1='Periclase.scf', ReplaceStr='s/ecutrho = 100/ecutrho = %0.3f/',
-                  ReplaceLabel='ecutrho',
-                  ReplaceFormatStr='%0.3f',
-                  ReplaceVals1=list(frange(100, 400, 50)))
+    # ConvergeParameter(InFile1='Periclase.scf', ReplaceStr='s/ecutrho = 100/ecutrho = %0.3f/',
+    #               ReplaceLabel='ecutrho',
+    #               ReplaceFormatStr='%0.3f',
+    #               ReplaceVals1=list(frange(100, 400, 50)))
 
+    # Finding Hubbard U in DFT+U.
+    ConvergeParameter(InFile1='NiO.dftu', ReplaceStr='s/Hubbard_alpha(1)=1D-40/Hubbard_alpha(1) = %0.3f/',
+                      ReplaceLabel='HubbardAlpha',
+                      ReplaceFormatStr='%0.3f',
+                      ReplaceVals1=list(frange(-0.1, 0.11, 0.01)))
+    # We have some special processing to do because first we have to run a pwscf to get wave functions.
+    # Then the dft+u iterations have to load those wavefunctions using startingpot='file'
+    print("Setting up wavefunctions.  This will fail if you haven't already done an relax calculation into calcdir.")
+    with open(os.path.join('CalcSummaries', 'BaseNames.txt'), 'r') as f:
+        BaseName = f.readline()
+    with open(os.path.join('CalcSummaries', BaseName + '-BaseNames.txt'), 'r') as f:
+        BaseNames = f.readlines()
+    for BaseName in BaseNames:
+        print('Copying: ', BaseName)
+        os.system('cp -R calcdir %s' % BaseName)
