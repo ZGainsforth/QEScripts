@@ -46,6 +46,39 @@ def GetChunkFromTextFile(FileName, StartStr, StopStr, skip_header=0, skip_footer
 
     return SectionData
 
+def floatme(v):
+    v = v.strip()
+    if len(v) == 0:
+        return 0.0
+    else:
+        return float(v)
+
+def ConvertEspressoTimeToSec(RunTime):
+    import re
+
+    try:
+        RunSeconds = re.findall('m([.0-9]*)', RunTime)[0]
+    except:
+        RunSeconds = ''
+    try:
+        RunMinutes = re.findall('([.0-9]*)m', RunTime)[0]
+    except:
+        RunMinutes = ''
+    try:
+        RunHours = re.findall('([.0-9]*)h', RunTime)[0]
+    except:
+        RunHours = ''
+    try:
+        RunDays = re.findall('([.0-9]*)d', RunTime)[0]
+    except:
+        RunDays = ''
+
+    RunSeconds = floatme(RunSeconds)
+    RunSeconds += floatme(RunMinutes)*60
+    RunSeconds += floatme(RunHours)*3600
+    RunSeconds += floatme(RunDays)*3600*24
+
+    return RunSeconds
 
 def GenerateSingleSummary(InFilebase):
     # Get the base file names.
@@ -73,7 +106,7 @@ def GenerateSingleSummary(InFilebase):
 
         try:
             RunTime = GetChunkFromTextFile(FileName=FileName + '.out', StartStr='PWSCF\s*:\s*', StopStr='s CPU', DataType='raw')
-            RunTime = 0
+            RunTimes[n] = ConvertEspressoTimeToSec(RunTime)
         except:
             RunTimes[n] = np.nan
 
