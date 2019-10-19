@@ -12,6 +12,18 @@ Polarizations = ['e_001', 'e_010', 'e_100']
 # We will have one spectrum for each polarization.
 SumSpectra = [None]*len(Polarizations)
 
+def Despike(S):
+    # For some reason XSpectra is returning a big spike on the first negative value on the energy axis.
+    # We are going to just make the value the average of the nearest neighbors.
+    # Energy axis:
+    E = np.copy(S[:,0])
+    # Ignore any positive energies (by dropping them to the most negative value around.
+    E[E>=0] = np.min(E)
+    # The least negative energy is now the maximum value.
+    i = np.argmax(E)
+    S[i,1] = (S[i-1,1] + S[i+1,1]) / 2
+    return S
+
 # Loop through each polarization
 for i, p in enumerate(Polarizations):
     # Get all the filenames for this polarization.
@@ -31,6 +43,7 @@ for i, p in enumerate(Polarizations):
         print(f'\tAdding {g}')
         # Get the raw data.
         x = np.genfromtxt(g)
+        x = Despike(x) # Get rid of the funky spike just below zero on the energy axis.
         # And save a plot
         plt.figure(1)
         plt.clf() # We are reusing this figure for each file.
@@ -112,5 +125,3 @@ plt.xlabel('eV')
 plt.title(f'Isotropic spectrum with polarization components')
 # plt.legend(fontsize=6)
 plt.savefig(f'{BaseName}-Isotropic' + '.png', dpi=300)
-
-
