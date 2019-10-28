@@ -105,7 +105,7 @@ def GenerateSingleSummary(InFilebase):
             Forces[n] = np.nan
 
         try:
-            RunTime = GetChunkFromTextFile(FileName=FileName + '.out', StartStr='PWSCF\s*:\s*', StopStr='s CPU', DataType='raw')
+            RunTime = GetChunkFromTextFile(FileName=FileName + '.out', StartStr='PWSCF\s*:\s*', StopStr='CPU', DataType='raw')
             RunTimes[n] = ConvertEspressoTimeToSec(RunTime)
         except:
             RunTimes[n] = np.nan
