@@ -1,13 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
+# import pdb; pdb.set_trace()
 
 # Atom name
-AtomName = 'Ar'
+AtomName = 'F'
 # Input file name.
 FileName = 'ld1.wfc'
 # Orbitals to plot
-OrbitalNames = ('1S', '2S', '2P', '3S', '3P')
-Multiplicity = [2,    2,    6,    2,    6]
+OrbitalNames = ('1S', '2S', '2P', '2P')
+Multiplicity = [2,    2,    3, 2]
 # Plot settings
 xlim = [0,2]
 print(OrbitalNames)
@@ -20,6 +21,8 @@ wfc = np.genfromtxt(FileName, names=True)
 Names = wfc.dtype.names
 # Note that the wavefunctions are from the highest (column 1) to the lowest (last column) in the wfc file.  So we have to read backwards through the columns and compare against the expected inputs.
 for i, Name in enumerate(Names[-1:0:-1]):
+    if '_' in Name:
+        Name, _ = Name.split('_')
     assert Name == OrbitalNames[i], 'Input orbital names does not equal the orbitals in the file.'
 # Now get the raw data.
 wfc = np.genfromtxt(FileName, skip_header=1)
