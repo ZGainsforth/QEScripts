@@ -7,9 +7,10 @@ ReplaceAtomBase = 'O_'
 ExcitedAtom = 'O_x'
 GroundAtom = 'O'
 Atoms = range(1,17)
+NumCPUs = 6
 Polarizations = ['e_001', 'e_010', 'e_100'] # These must have a format of e_xxx or e_xxx_k_xxx
-SCFRunCommand = 'mpirun -np 6 -x OMP_NUM_THREADS=1 pw.x < {prefix}.in | tee {prefix}.out\n'
-XSPECTRARunCommand = 'xspectra.x < {prefix}.{Polarization}.in | tee {prefix}.{Polarization}.out\n'
+SCFRunCommand = 'mpirun -np {NumCPUs} -x OMP_NUM_THREADS=1 pw.x < {prefix}.in | tee {prefix}.out\n'
+XSPECTRARunCommand = 'mpirun -np {NumCPUs} -x OMP_NUM_THREADS=1 xspectra.x < {prefix}.{Polarization}.in | tee {prefix}.{Polarization}.out\n'
 
 # First read in the scf file.
 with open(FileBase+'.scf', 'r') as f:
@@ -40,7 +41,7 @@ for n in Atoms:
         g.write(NewFileBody)
 
     # Add this file to the runall.
-    RunallSCF += SCFRunCommand.format(prefix=prefix)
+    RunallSCF += SCFRunCommand.format(prefix=prefix, NumCPUs=NumCPUs)
 
     # Make xspectra files for each polarization now.
     for Polarization in Polarizations:
@@ -70,7 +71,7 @@ for n in Atoms:
             g.write(NewFileBody)
 
         # Add this file to the runall.
-        RunallXSPECTRA += XSPECTRARunCommand.format(prefix=prefix, Polarization=Polarization)
+        RunallXSPECTRA += XSPECTRARunCommand.format(prefix=prefix, Polarization=Polarization, NumCPUs=NumCPUs)
 
 # Write out runall files.
 with open(f'runallscf.sh', 'w+') as g:
