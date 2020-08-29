@@ -1,12 +1,15 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import glob2 as glob
-import pudb 
+import numpy as np 
+import matplotlib.pyplot as plt
+import os
+import subprocess
+# import pudb 
 # pu.db
 
 # Basic data about the set of files which we will combine to make spectra.
-BaseName = 'ForsteriteXCH.O'
-Atoms = range(1,17)
+BaseName = 'MgSpinel'
+# SimulationNames = ['452fs', '462fs', '472fs', '482fs']
+SimulationNames = ['.']
 Polarizations = ['e_001', 'e_010', 'e_100']
 
 # We will have one spectrum for each polarization.
@@ -24,10 +27,18 @@ def Despike(S):
     S[i,1] = (S[i-1,1] + S[i+1,1]) / 2
     return S
 
+# First ensure that each simulation has been individually plotted.
+if len(SimulationNames) > 1:
+    for sim in SimulationNames:
+        print(f'Running PlotXSpectraXANES.py in {sim}...')
+        p = subprocess.Popen(['python', 'PlotXSpectraXANES.py'], cwd=sim)
+        p.wait()
+
 # Loop through each polarization
 for i, p in enumerate(Polarizations):
     # Get all the filenames for this polarization.
-    Files = glob.glob(f'{BaseName}*{p}*.dat')
+    Files = glob.glob(os.path.join(SimulationNames[0], f'{BaseName}*{p}*.dat'))
+    Files = [os.path.basename(f) for f in Files]
     Files.sort()
 
     print(f'Polarization: {p}')
@@ -40,10 +51,20 @@ for i, p in enumerate(Polarizations):
     plt.clf() # Clear out the figure only at the start of the polarization.
 
     for j, g in enumerate(Files):
-        print(f'\tAdding {g}')
-        # Get the raw data.
-        x = np.genfromtxt(g)
-        x = Despike(x) # Get rid of the funky spike just below zero on the energy axis.
+        x = None
+        for sim in SimulationNames:
+            oneg = os.path.join(sim, g)
+            print(f'\tAdding {oneg}')
+            # Get the raw data.
+            y = np.genfromtxt(oneg)
+            y = Despike(y) # Get rid of the funky spike just below zero on the energy axis.
+            if x is None:
+                x = y
+            else:
+                x[:,1] += y[:,1]
+        
+        x[:,1] /= len(SimulationNames)
+
         # And save a plot
         plt.figure(1)
         plt.clf() # We are reusing this figure for each file.
@@ -60,8 +81,6 @@ for i, p in enumerate(Polarizations):
 
         # If this is our first spectrum, then initialize with it.
         if SumSpectra[i] is not None:
-            # print(SumSpectra[i][:,0], x[:,0])
-            # assert SumSpectra[i][:,0] == x[:,0], f"{g} energy axis doesn't match other spectra in this polarization."
             SumSpectra[i][:,1] += x[:,1]
         else:
             SumSpectra[i] = x
