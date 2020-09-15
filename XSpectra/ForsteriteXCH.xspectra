@@ -8,14 +8,13 @@
     xcoordcrys      =  .true.,
     xiabs           =  4,
     x_save_file     =  'xanes.sav',
-    xerror          =  0.001,
-    xniter          =  1000,
+    xniter          =  2000,
     xcheck_conv     =  50,
     xonly_plot      =  .false.,
 /
 &plot
-    xnepoint        =  300,
-    xgamma          =  0.8,
+    xnepoint        =  1600,
+    xgamma          =  0.2,
     xemin           =  -10.0,
     xemax           =  30.0,
     terminator      =  .true.,
