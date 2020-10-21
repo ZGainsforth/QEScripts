@@ -1,0 +1,8 @@
+&INPUTPP
+    outdir='calcdir'
+    prefix='Mg2SiO4.V_1'
+    seedname='Mg2SiO4.V_1'
+    write_mmn=.true.
+    write_amn=.true.
+    write_unk=.true.
+/
