@@ -1,0 +1,38 @@
+! UKS BHLYP ZORA ZORA-def2-TZVPP SARC/J
+! PAL6
+
+%rocis
+    NRoots  30
+    MaxDim  100
+    DoQuad  True
+    DoRI    False
+    SOC     True
+    OrbWin = 2,4, 0, 3000
+    DoLowerMult True
+    DoHigherMult True
+    PrintLevel 4
+    DoDFTCIS True
+    DFTCIS_c = 0.21, 0.30, 0.40
+    MaxIter 200
+    DoNTO   True
+    NTOStates= 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29
+end
+
+
+
+%rel
+    picturechange true
+end
+
+%geom
+    Constraints
+        {C 0 C}
+    end
+end
+
+* xyz 0 2
+  Fe     0.000000    0.000000   -0.000000
+  C      1.807990    0.395155   -0.002002
+  H      2.860201    0.627691   -0.003582
+*
+
