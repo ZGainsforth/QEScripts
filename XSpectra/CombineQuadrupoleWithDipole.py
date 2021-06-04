@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-BaseName = 'Mg2SiO4'
+BaseName = 'Run202'
 
 Polarizations = [('e_100', 'xk010', 'xk001'), 
                  ('e_010', 'xk100', 'xk001'), 
@@ -36,9 +36,9 @@ for i, p in enumerate(Polarizations):
     else:
         IsotropicQuadrupoleSpectra = quadrupole
 
-    np.savetxt(f'{BaseName}-Sum_{p[0]}_dipole.txt', dipole[i], header='# eV  sigma')
-    np.savetxt(f'{BaseName}-Sum_{p[0]}_quadrupole.txt', quadrupole[i], header='# eV  sigma')
-    np.savetxt(f'{BaseName}-Sum_{p[0]}_dipoleplusquadrupole.txt', combined[i], header='# eV  sigma')
+    np.savetxt(f'{BaseName}-Sum_{p[0]}_dipole.txt', dipole, header='# eV  sigma')
+    np.savetxt(f'{BaseName}-Sum_{p[0]}_quadrupole.txt', quadrupole, header='# eV  sigma')
+    np.savetxt(f'{BaseName}-Sum_{p[0]}_dipoleplusquadrupole.txt', combined, header='# eV  sigma')
 
     fig,ax = plt.subplots(figsize=(12,8))
     ax.plot(dipole[:,0], dipole[:,1], label='Dipole')
@@ -57,9 +57,9 @@ IsotropicQuadrupoleSpectra[:,1] /= len(Polarizations)
 IsotropicCombinedSpectra = IsotropicDipoleSpectra.copy()
 IsotropicCombinedSpectra[:,1] += IsotropicQuadrupoleSpectra[:,1]
 
-np.savetxt(f'{BaseName}-Isotropic_dipole.txt', IsotropicDipoleSpectra[i], header='# eV  sigma')
-np.savetxt(f'{BaseName}-Isotropic_quadrupole.txt', IsotropicQuadrupoleSpectra[i], header='# eV  sigma')
-np.savetxt(f'{BaseName}-Isotropic_dipoleplusquadrupole.txt', IsotropicCombinedSpectra[i], header='# eV  sigma')
+np.savetxt(f'{BaseName}-Isotropic_dipole.txt', IsotropicDipoleSpectra, header='# eV  sigma')
+np.savetxt(f'{BaseName}-Isotropic_quadrupole.txt', IsotropicQuadrupoleSpectra, header='# eV  sigma')
+np.savetxt(f'{BaseName}-Isotropic_dipoleplusquadrupole.txt', IsotropicCombinedSpectra, header='# eV  sigma')
 
 fig,ax = plt.subplots(figsize=(12,8))
 ax.plot(IsotropicDipoleSpectra[:,0], IsotropicDipoleSpectra[:,1], label='Dipole')
