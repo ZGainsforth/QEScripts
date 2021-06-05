@@ -1,0 +1,28 @@
+Steps to produce dipole + quadrupole spectra:
+
+Within dipole produce a run setup for dipole:
+
+python MakeXSpectraForEachAtom.py
+
+On a server: sbatch myjobn.sh
+or locally: ./runallscf.sh and ./runallxspectra.sh
+
+Once the dipole run is finished:
+
+python PlotXSpectraXANES.py
+
+Make sure the spectra are good.
+
+Now set up the quadrupole calculation from the root of the directory (above dipole):
+
+./makequadrupoles.sh
+
+This will produce three quadrupole directories.  Check the files to ensure they are set up correctly and then run them.
+
+Once done run all the python PlotXSpectraXANES.py.
+
+Then go to Combine_Isotropic and:
+
+python CombineQuadrupoleWithDipole.py
+
+And if all the pieces are in place you should get a resultant isotropic spectrum.
